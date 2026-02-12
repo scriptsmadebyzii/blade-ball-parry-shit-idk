@@ -1,0 +1,122 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "Auto Parry Script",
+   LoadingTitle = "Made By xxenfnn",
+   LoadingSubtitle = "by xxenfnn",
+   Theme = "Serenity",
+   ToggleUIKeybind = "K",
+   ConfigurationSaving = { Enabled = false },
+   Discord = {
+      Enabled = true,
+      Invite = "45wf2DmXgP",
+      RememberJoins = true
+   },
+   KeySystem = true,
+   KeySettings = {
+      Title = "Xens Code",
+      Subtitle = "Key System",
+      Note = "Ur Key is Ur discord username",
+      FileName = "diddyyyyyyyyyyyyyyyyyy",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"experthook"}
+   }
+})
+
+local Tab = Window:CreateTab("Main... the only part lol", 4483362458)
+Tab:CreateSection("The Script You Dumbass")
+
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+
+local Player = Players.LocalPlayer
+
+local AutoParryConnection
+local BallAddedConnection
+local TargetConnection
+local Parried = false
+
+local function GetBall()
+    for _, Ball in ipairs(workspace.Balls:GetChildren()) do
+        if Ball:GetAttribute("realBall") then
+            return Ball
+        end
+    end
+end
+
+local function StopEverything()
+    if AutoParryConnection then
+        AutoParryConnection:Disconnect()
+        AutoParryConnection = nil
+    end
+    if BallAddedConnection then
+        BallAddedConnection:Disconnect()
+        BallAddedConnection = nil
+    end
+    if TargetConnection then
+        TargetConnection:Disconnect()
+        TargetConnection = nil
+    end
+    Parried = false
+end
+
+Tab:CreateToggle({
+   Name = "Auto Parry",
+   CurrentValue = false,
+   Flag = "AutoParryToggle",
+
+   Callback = function(Value)
+
+       if Value then
+
+           Rayfield:Notify({
+               Title = "Notification dumbass",
+               Content = "so like yea the fucking shit ran",
+               Duration = 6.5,
+               Image = 4483362458,
+           })
+
+           BallAddedConnection = workspace.Balls.ChildAdded:Connect(function()
+               local Ball = GetBall()
+               if not Ball then return end
+
+               if TargetConnection then
+                   TargetConnection:Disconnect()
+               end
+
+               TargetConnection = Ball:GetAttributeChangedSignal("target"):Connect(function()
+                   Parried = false
+               end)
+           end)
+
+           AutoParryConnection = RunService.PreSimulation:Connect(function()
+               local Ball = GetBall()
+               local Character = Player.Character
+               if not Ball or not Character then return end
+
+               local HRP = Character:FindFirstChild("HumanoidRootPart")
+               if not HRP then return end
+
+               local Speed = Ball.zoomies.VectorVelocity.Magnitude
+               local Distance = (HRP.Position - Ball.Position).Magnitude
+
+               if Ball:GetAttribute("target") == Player.Name and not Parried and Distance / Speed <= 0.55 then
+                   VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 0)
+                   Parried = true
+               end
+           end)
+
+       else
+           StopEverything()
+
+           Rayfield:Notify({
+               Title = "Notification dumbass",
+               Content = "anddddd you stop it dumbass",
+               Duration = 6.5,
+               Image = 4483362458,
+           })
+       end
+   end,
+})
